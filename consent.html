@@ -395,9 +395,9 @@ async function generatePDF() {
     doc.setDrawColor(180, 145, 70);
     doc.line(M, 28, W - M, 28);
 
-    // ── エリア定義（余白削減・同意文を広く）
+    // ── エリア定義
     const bodyTop       = 30;
-    const signAreaH     = 48;
+    const signAreaH     = 90;
     const consentBottom = H - signAreaH - 4;
     const consentH      = consentBottom - bodyTop;
 
