@@ -383,22 +383,27 @@ async function generatePDF() {
     doc.setLineWidth(0.5);  doc.line(M, 13, W - M, 13);
     doc.setLineWidth(0.15); doc.line(M, 14.5, W - M, 14.5);
 
-    // ── タイトル
-    const { canvas: tc, ctx: tctx } = makeCanvas(500, 56);
+    // ── タイトル（字間を広げてゴールドラインと同幅に）
+    const titlePxW = Math.round(IW * PX * 2);
+    const { canvas: tc, ctx: tctx } = makeCanvas(titlePxW, 80);
     tctx.fillStyle = '#1a1a1a';
-    tctx.font = '500 30px "Shippori Mincho","Noto Serif JP",serif';
+    tctx.font = '400 36px "Shippori Mincho","Noto Serif JP",serif';
     tctx.textAlign = 'center';
-    tctx.fillText('入店同意書', 250, 40);
-    doc.addImage(tc.toDataURL('image/png'), 'PNG', W / 2 - 28, 16, 56, 11);
+    const titleChars = ['入', '店', '同', '意', '書'];
+    const step = titlePxW / (titleChars.length + 1);
+    titleChars.forEach((ch, i) => {
+      tctx.fillText(ch, step * (i + 1), 56);
+    });
+    doc.addImage(tc.toDataURL('image/png'), 'PNG', M, 15, IW, 12);
 
     doc.setLineWidth(0.15);
     doc.setDrawColor(180, 145, 70);
-    doc.line(M, 29, W - M, 29);
+    doc.line(M, 28, W - M, 28);
 
-    // ── エリア定義
-    const bodyTop       = 31;
-    const signAreaH     = 60;   // 下段（名前+サイン）の高さ mm
-    const consentBottom = H - signAreaH - 6;
+    // ── エリア定義（余白削減・同意文を広く）
+    const bodyTop       = 30;
+    const signAreaH     = 48;
+    const consentBottom = H - signAreaH - 4;
     const consentH      = consentBottom - bodyTop;
 
     // ── 同意文エリア（Canvasで日本語描画）
@@ -421,7 +426,7 @@ async function generatePDF() {
       { t: '7．店内ルールの遵守について', b: '他のお客様やスタッフへの迷惑行為、暴言・威迫行為、過度な飲酒の強要、飲酒運転などの行為は行わないことを約束します。店内ルールおよびスタッフの案内に従うことに同意します。' },
     ];
 
-    const fs = 9.5, tfs = 10.5, lh = fs * 1.85;
+    const fs = 10, tfs = 11, lh = fs * 1.72;
     let cy = fs + 4;
     const maxH = rH - lh * 2.5;
 
@@ -452,7 +457,7 @@ async function generatePDF() {
           cy += lh;
         }
       });
-      cy += lh * 0.4;
+      cy += lh * 0.25;
     });
 
     // 締め文
